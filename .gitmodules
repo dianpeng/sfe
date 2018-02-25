@@ -1,0 +1,4 @@
+[submodule "dep/dinject"]
+	path = dep/dinject
+	url = https://github.com/dianpeng/dinject
+  ignore=dirty
