@@ -15,11 +15,11 @@ class MyObject(Height,Value) extends Base {
   "Another"  = MyObject1(Height,Value);
 }
 
-object "Particle1" MyObject(Height=20,Value=true );
+object "Particle1" MyObject(20,true );
 
-object "Particle2" MyObject(Height=20,Value=false);
+object "Particle2" MyObject(20,false);
 
-object "Particle3" MyObject(Height=30,Value="xxx");
+object "Particle3" MyObject(30,xxx");
 
-object "Particle4" MyObject(Height=40,Value="xxx");
+object "Particle4" MyObject(40,xxx");
 

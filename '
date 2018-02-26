@@ -33,7 +33,6 @@ namespace {
   __(TK_NOT,"!")                   \
   __(TK_QUESTION,"?")              \
   __(TK_COLON,":")                 \
-  __(TK_DOLLAR,"$")                \
   __(TK_DOT,".")                   \
   __(TK_INCLUDE,"include")         \
   __(TK_VAR,"var")                 \
@@ -326,7 +325,6 @@ const Tokenizer::Lexeme& Tokenizer::Next() {
       case '?': return GetLexeme(TK_QUESTION,1);
       case ':': return GetLexeme(TK_COLON,1);
       case '.': return GetLexeme(TK_DOT,1);
-      case '$': return GetLexeme(TK_DOLLAR,1);
       case ',': return GetLexeme(TK_COMMA,1);
       case ';': return GetLexeme(TK_SEMICOLON,1);
       case '0': case '1': case '2': case '3': case '4':
@@ -360,8 +358,7 @@ namespace ast {
   __(TERNARY,Ternary,"ternary")        \
   __(VAR,Var,"var")                    \
   __(CLASS,Class,"class")              \
-  __(OBJ_INST,ObjInst,"objinst")       \
-  __(OBJ_INL ,ObjInl ,"objinl" )
+  __(OBJECT,Object,"object")
 
 
 #define __(A,B,...) class B;
@@ -451,11 +448,11 @@ struct Var : public Node {
 };
 
 struct Class : public Node {
-  std::string name;
+  Ident* name;
   std::vector<std::string> arg;
   Dict*  body;
 
-  Class( int l , int c , std::string&& n , Call* ct , Dict* bd ):
+  Class( int l , int c , Ident* n , Call* ct , Dict* bd ):
     Node(AST_CLASS,l,c),
     name(n),
     arg (),
@@ -463,48 +460,9 @@ struct Class : public Node {
   {}
 };
 
-struct ObjInst : public Node {
-  std::string name;
-  std::string class_name;
-  std::vector<Node*> arg;
-
-  ObjInst( int l , int c , std::string&& n , std::string&& cn ):
-    Node(AST_OBJ_INST,l,c),
-    name(n),
-    class_name(cn),
-    arg()
-  {}
-};
-
-struct ObjInl : public Node {
-  std::string name;
-  Node* expr;
-
-  ObjInl( int l , int c , std::string& n , Node* e ):
-    Node(AST_OBJ_INL, l, c),
-    name(n),
-    expr(e)
-  {}
+class Object : public Node {
+  Ident* name;
 };
 
 } // namespace ast
-
-
-// ========================================================
-//
-// Parser
-//
-// ======================================================
-
-
-
-
-
-
-
-
-
-
-
-
 
