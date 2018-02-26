@@ -1,4 +1,6 @@
 #include "util.h"
+
+#include <cstring>
 #include <cctype>
 #include <cassert>
 
@@ -309,6 +311,27 @@ bool ParseBlendMode( const char* source , sf::BlendMode* output ) {
            !flags[3] || !flags[4] || !flags[5] );
 
   return true;
+}
+
+void FormatV( std::string* buffer, const char* format, va_list vl) {
+  va_list backup;
+  size_t old_size = buffer->size();
+
+  va_copy(backup, vl);
+  buffer->resize(old_size + 128);
+
+  int ret = std::vsnprintf(AsBuffer(buffer, old_size), 128, format, vl);
+  if (ret >= 128) {
+    buffer->resize(old_size + ret + 1); // ret doesn't count for null terminator
+    ret = std::vsnprintf(AsBuffer(buffer, old_size), ret + 1, format, backup);:
+  }
+  buffer->resize(old_size + ret);
+}
+
+void Format( std::string* buffer , const char* format , ... ) {
+  va_list vl;
+  va_start(vl,format);
+  FormatV(buffer,format,vl);
 }
 
 } // namespace util

@@ -1,0 +1,25 @@
+include "file1"
+include "file2"
+
+var v0 = "xxx";
+var v1 = 20.0;
+var v2 = "hello world";
+
+class Base {
+  MyHellow = 100;
+}
+
+class MyObject(Height,Value) extends Base {
+  "MyObject" = 10;
+  "MyObject" = 20;
+  "Another"  = MyObject1(Height,Value);
+}
+
+object "Particle1" MyObject(Height=20,Value=true );
+
+object "Particle2" MyObject(Height=20,Value=false);
+
+object "Particle3" MyObject(Height=30,Value="xxx");
+
+object "Particle4" MyObject(Height=40,Value="xxx");
+

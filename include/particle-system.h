@@ -92,25 +92,25 @@ class ParticleSystem {
 
 
  private:
-  FloatRect frame_;
+  FloatRect     frame_;
   std::uint32_t max_particles_;
-  double full_life_;
-  double direction_;
-  double spread_;
-  DoubleRange speed_;
-  DoubleRange spawn_x_;
-  DoubleRange spawn_y_;
-  DoubleRange life_;
-  DoubleRange gravity_;
-  DoubleRange raidal_acc_;
-  DoubleRange tangential_acc_;
-  DoubleRange size_;
-  DoubleRange size_delta_;
-  DoubleRange spin_;
-  DoubleRange spin_delta_;
-  sf::Color   color_start_;
-  sf::Color   color_end_;
-  float       color_delta_;
+  double        full_life_;
+  double        direction_;
+  double        spread_;
+  DoubleRange   speed_;
+  DoubleRange   spawn_x_;
+  DoubleRange   spawn_y_;
+  DoubleRange   life_;
+  DoubleRange   gravity_;
+  DoubleRange   raidal_acc_;
+  DoubleRange   tangential_acc_;
+  DoubleRange   size_;
+  DoubleRange   size_delta_;
+  DoubleRange   spin_;
+  DoubleRange   spin_delta_;
+  Color         color_start_;
+  Color         color_end_;
+  float         color_delta_;
 
   // field for tracking status of ParticleSystem
   std::unique_ptr<ParticleEmitter> emitter_;

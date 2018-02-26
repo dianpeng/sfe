@@ -48,6 +48,21 @@ struct Rect {
   void SetHeight( T v ) { height = v; }
 };
 
+struct Color {
+  std::uint8_t a,r,g,b;
+  Color() : a(), r(), g(), b() {}
+  Color( std::uint8_t _a ,
+         std::uint8_t _r ,
+         std::uint8_t _g ,
+         std::uint8_t _b ): a(_a), r(_r), g(_g), b(_b) {}
+ public:
+  // DINJECT
+  void SetA( std::uint8_t v ) { a = v; }
+  void SetR( std::uint8_t v ) { r = v; }
+  void SetG( std::uint8_t v ) { g = v; }
+  void SetB( std::uint8_t v ) { b = v; }
+};
+
 typedef Rect<std::int32_t> IntRect;
 typedef Rect<float>        FloatRect;
 typedef Rect<double>       DoubleRect;

@@ -20,4 +20,12 @@ DINJECT_CLASS(DoubleRange) {
     .AddPrimitive("upper",&DoubleRange::SetUpper);
 }
 
+DINJECT_CLASS(Color) {
+  dinject::Class<Color>("adt.Color")
+    .AddPrimitive("A",&Color::SetA)
+    .AddPrimitive("R",&Color::SetR)
+    .AddPrimitive("G",&Color::SetG)
+    .AddPrimitive("B",&Color::SetB);
+}
+
 } // namespace sfe
