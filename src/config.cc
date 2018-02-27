@@ -452,12 +452,14 @@ struct Var : public Node {
 
 struct Class : public Node {
   std::string name;
+  std::vector<std::string base;
   std::vector<std::string> arg;
   Dict*  body;
 
   Class( int l , int c , std::string&& n , Call* ct , Dict* bd ):
     Node(AST_CLASS,l,c),
     name(n),
+    base(),
     arg (),
     body(bd)
   {}
@@ -487,6 +489,136 @@ struct ObjInl : public Node {
   {}
 };
 
+struct Root: public Node {
+  std::vector<Var*>   var;
+  std::vector<Class*> cls;
+  std::vector<Node*>  obj;
+
+  Root( int l , int c ):
+    Node(AST_ROOT,l,c),
+    var(),
+    cls(),
+    obj()
+  {}
+};
+
+class BumpAllocator {
+ public:
+  inline BumpAllocator( std::size_t init_capacity ,
+                        std::size_t maximum_size  );
+
+  ~BumpAllocator() { Clear(); }
+
+  // Grab memory from BumpAllocator
+  void* Grab( std::size_t );
+  void* Grab( std::size_t sz , std::size_t alignment ) {
+    return Grab( Align(sz,alignment) );
+  }
+  template< typename T > T* Grab() { return static_cast<T*>(Grab(sizeof(T))); }
+
+ public:
+  std::size_t size() const { return size_; }
+  std::size_t maximum_size() const { return maximum_size_; }
+  void set_maximum_size( std::size_t sz ) { maximum_size_ = sz; }
+  std::size_t segment_size() const { return segment_size_; }
+  std::size_t current_capacity() const { return current_capacity_; }
+  std::size_t total_bytes() const { return total_bytes_; }
+
+ public:
+  void Reset();
+
+ private:
+  void Clear();
+  void RefillPool( std::size_t );
+
+  struct Segment {
+    Segment* next;
+  };
+
+  Segment* segment_;                       // First segment list
+  void* pool_;                             // Starting position of the current pool
+  std::size_t init_capacity_;              // Initialized capacity
+  std::size_t size_;                       // How many times the Grab has been called
+  std::size_t current_capacity_;           // Current capacity
+  std::size_t used_;                       // Used size for the current pool
+  std::size_t segment_size_;               // Size of all the segment
+  std::size_t maximum_size_;               // Maximum size of BumpAllocator
+  std::size_t total_bytes_ ;               // How many bytes has been allocated , include the Segment header
+
+  DISALLOW_COPY_AND_ASSIGN(BumpAllocator);
+};
+
+inline BumpAllocator::BumpAllocator( std::size_t init_capacity ,
+                                     std::size_t maximum_size  ) {
+  segment_         (NULL),
+  pool_            (NULL),
+  init_capacity_   (init_capacity),
+  size_            (0),
+  current_capacity_(init_capacity),
+  used_            (0),
+  segment_size_    (0),
+  maximum_size_    (maximum_size),
+  total_bytes_     (0)
+{
+  RefillPool(init_capacity);
+}
+
+void BumpAllocator::RefillPool( std::size_t size ) {
+  const size_t total = size + sizeof(Segment);
+  void* ptr = :malloc(total);
+
+  Segment* segment = reinterpret_cast<Segment*>(ptr);
+  segment->next = segment_;
+  segment_ = segment;
+
+  pool_ = reinterpret_cast<void*>(
+      static_cast<char*>(ptr) + sizeof(Segment));
+
+  current_capacity_ = size;
+  used_ = 0;
+  total_bytes_ += total;
+  ++segment_size_;
+}
+
+void* BumpAllocator::Grab( std::size_t size ) {
+  assert(size);
+
+  if( used_ + size > current_capacity_ ) {
+    size_t new_cap = current_capacity_ * 2;
+    if(new_cap > maximum_size_) new_cap = maximum_size_;
+    if(new_cap < size ) new_cap = size;
+    RefillPool(new_cap);
+  }
+
+  assert( current_capacity_ - used_ >= size );
+
+  void* ret = pool_;
+  pool_ = reinterpret_cast<void*>(static_cast<char*>(pool_) + size);
+  used_ += size;
+  size_ += size;
+  return ret;
+}
+
+void BumpAllocator::Clear() {
+  while(segment_) {
+    Segment* n = segment_->next;
+    :free(segment_);
+    segment_ = n;
+  }
+}
+
+void BumpAllocator::Reset() {
+  Clear();
+
+  pool_ = NULL;
+  size_ = 0;
+  current_capacity_ = 0;
+  used_ = 0;
+  segment_size_ = 0;
+
+  RefillPool(init_capacity_);
+}
+
 } // namespace ast
 
 
@@ -496,6 +628,32 @@ struct ObjInl : public Node {
 //
 // ======================================================
 
+class Parser {
+ public:
+  Parse( const char* );
+
+ private:
+
+ private:
+  template< typename T , typename ...ARG >
+  T* NewNode( ARG ...args ) {
+    void* data = allocator_.Grab(sizeof(T));
+    return ::new (data) T(args...);
+  }
+
+  struct Unit {
+    Tokenizer   tk;
+    std::string file;
+    Unit( const char* source , const std::string& name ):
+      tk(source),
+      file(name)
+    {}
+  };
+
+  std::vector<Unit>  state_;        // parse unit states
+  BumpAllocator      allocator;     // allocator
+  std::vector<Node*> nodes_;        // used to call destructor
+};
 
 
 
